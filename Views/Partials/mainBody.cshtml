@@ -1,0 +1,965 @@
+﻿@inherits UmbracoViewPage
+
+@using Clean.Core.Helpers
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@{
+    ArticleList articleList = UmbracoContext.Content.GetAtRoot().DescendantsOrSelf<ArticleList>().FirstOrDefault();
+    int modelId = Model.Id;
+    var isArticleListPage = modelId == articleList?.Id;
+    var fallbackPageSize = isArticleListPage ? 10 : 3;
+
+    var pageSize = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "size", fallbackPageSize);
+    var pageNumber = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "page", 1);
+    var allArticles = articleList?.Children<Article>().Where(x => x.IsVisible()).OrderByDescending(x => x.ArticleDate) ?? Enumerable.Empty<Article>();
+    var pageOfArticles = allArticles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+    var totalItemCount = allArticles.Count();
+    var pageCount = totalItemCount > 0 ? Math.Ceiling((double)totalItemCount / pageSize) : 1;
+
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 mx-auto">
+            <div class="container-sm bd-gutter">
+        <header
+          class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+
+
+          
+
+
+
+          <!-- <ul class="nav nav-pills">
+            <li class="nav-item">
+              <a href="#" class="nav-link active" aria-current="page"
+                >Visitors</a
+              >
+            </li>
+            <li class="nav-item"><a href="#" class="nav-link">Artists</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Venues</a></li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">Get Involved</a>
+            </li>
+            <li class="nav-item"><a href="#" class="nav-link">Education</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Donate</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Sponsors</a></li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">About ArtPrize</a>
+            </li>
+          </ul> -->
+        </header>
+
+        <main>
+          <h2 class="mb-3">Artist Registration</h2>
+          <form class="row g-3">
+            <div class="col-md-4 mb-3">
+              <label for="inputFirstName1" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="inputFirstName1" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputPassword4" class="form-label">Last Name</label>
+              <input type="password" class="form-control" id="inputPassword4" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputEmail4" class="form-label">Email</label>
+              <input type="email" class="form-control" id="inputEmail4" />
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="inputAddress" class="form-label">Address</label>
+              <input
+                type="text"
+                class="form-control"
+                id="inputAddress"
+                placeholder="1234 Main St"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputAddress2" class="form-label">Address 2</label>
+              <input
+                type="text"
+                class="form-control"
+                id="inputAddress2"
+                placeholder="Apartment, studio, or floor"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputCity" class="form-label">City</label>
+              <input type="text" class="form-control" id="inputCity" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputState" class="form-label">State</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>MI</option>
+                <option>IL</option>
+                <option>OH</option>
+              </select>
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputZip" class="form-label">Zip</label>
+              <input type="text" class="form-control" id="inputZip" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputState" class="form-label">Country</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>USA</option>
+                <option>Canada</option>
+                <option>Sweden</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputState" class="form-label">Birth Country</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>USA</option>
+                <option>Canada</option>
+                <option>Sweden</option>
+              </select>
+            </div>
+
+
+
+            <fieldset class="col-md-3">
+                <legend>Artist name other than name listed?</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="artistYes"
+                    name="artistOther"
+                    value="Yes"
+                    checked
+                  />
+                  <label for="artistYes">Yes</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="artistNo"
+                    name="artistOther"
+                    value="No"
+                  />
+                  <label for="artistNo">No</label>
+                </div>
+              </fieldset>
+            
+            
+              
+            <div class="col-md-4 mb-3">
+              <label for="inputFirstName2" class="form-label"
+                >Artist or Artist Group Name(s)</label
+              >
+              <input type="text" class="form-control" id="inputFirstName2" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="inputPhone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="inputPhone" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputState" class="form-label">Phone Type</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>Mobile</option>
+                <option>Land line</option>
+              </select>
+            </div>
+
+            <h3 class="mb-3 mt-5">Collaborators</h3>
+            <div class="row collab mb-3">
+              <div class="col-md-3">
+                <label for="inputFirstName3" class="form-label"
+                  >First Name</label
+                >
+                <input type="text" class="form-control" id="inputFirstName3" />
+              </div>
+              <div class="col-md-4">
+                <label for="inputPassword4" class="form-label">Last Name</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="inputPassword4"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="inputEmail4" class="form-label">Email</label>
+                <input type="email" class="form-control" id="inputEmail4" />
+              </div>
+              <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+
+            <div class="row collab mb-3">
+              <div class="col-md-1">
+                <button class="btn btn-danger">X</button>
+              </div>
+              <div class="col-md-1">
+                <p>First</p>
+              </div>
+              <div class="col-md-1">
+                <p>Name</p>
+              </div>
+            </div>
+
+            <div class="row collab mb-3">
+              <div class="col-md-1">
+                <button class="btn btn-danger">X</button>
+              </div>
+              <div class="col-md-1">
+                <p>Firstt</p>
+              </div>
+              <div class="col-md-1">
+                <p>Namee</p>
+              </div>
+            </div>
+
+            <h3 class="mb-3 mt-5">Artwork</h3>
+            <div class="row collab">
+              <div class="col-md-4 mb-3">
+                <label for="inputFirstName4" class="form-label">Title</label>
+                <input type="text" class="form-control" id="inputFirstName4" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputPassword4" class="form-label"
+                  >Production Year</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="inputPassword4"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputEmail4" class="form-label">Medium</label>
+                <input type="email" class="form-control" id="inputEmail4" />
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset class="col-md-2">
+                <legend>Environment</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="inDoors"
+                    name="environment"
+                    value="Indoors"
+                    checked
+                  />
+                  <label for="inDoors">Indoors</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="outDoors"
+                    name="environment"
+                    value="Outdoors"
+                  />
+                  <label for="outDoors">Outdoors</label>
+                </div>
+              </fieldset>
+
+              <div class="col-md-4 mb-3">
+                <label for="inputPhone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="inputPhone" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputState" class="form-label">Phone Type</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>Mobile</option>
+                  <option>Land line</option>
+                </select>
+              </div>
+            </div>
+            <div class="row collab">
+              <div class="col-md-12 mb-3 p-0">
+                <label for="exampleFormControlTextarea1" class="form-label"
+                  >Description</label>
+                <textarea
+                  class="form-control"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-4 mb-3 p-0">
+                <label for="inputState" class="form-label">Art Forms</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>asdf</option>
+                  <option>asdf</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstNam5e" class="form-label">Width</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName5"
+                />
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstName6" class="form-label">Depth</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName6"
+                />
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstName7" class="form-label">Height</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName7"
+                />
+              </div>
+
+              <fieldset>
+                <legend>Can touch?</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="canTouch"
+                    name="touchornah"
+                    value="Yes"
+                    checked
+                  />
+                  <label for="canTouch">Yes</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="noTouch"
+                    name="touchornah"
+                    value="No"
+                  />
+                  <label for="noTouch">No</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-12 p-0">
+                <label for="exampleFormControlTextarea1" class="form-label"
+                  >Technical Details</label
+                >
+                <textarea
+                  class="form-control"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-5 p-0">
+                <label for="formFile" class="form-label"
+                  >Upload Artwork Images</label
+                >
+                <input class="form-control" type="file" id="formFile" />
+              </div>
+              <div class="col-md-1 text-center">
+                <p class="mt-5">or</p>
+              </div>
+              <div class="col-md-5 p-0">
+                <label for="inputFirstName8" class="form-label">URL</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputFirstName8"
+                  placeholder="https://"
+                />
+              </div>
+              <div class="col-md-1">
+                <button type="button" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset class="col-md-2">
+                  <legend>Can touch?</legend>
+                  <div>
+                    <input
+                      type="radio"
+                      id="canTouch"
+                      name="touchornah"
+                      value="Yes"
+                      checked
+                    />
+                    <label for="canTouch">Yes</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="noTouch"
+                      name="touchornah"
+                      value="No"
+                    />
+                    <label for="noTouch">No</label>
+                  </div>
+                </fieldset>
+
+
+             
+                  
+
+
+              <div class="col-md-2">
+                <label for="inputFirstName8" class="form-label">Price</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName8"
+                  min="0.01"
+                  step="0.01"
+                  max="2500"
+                  value="25.67"
+                />
+              </div>
+              <div class="col-md-8">
+                <label for="inputFirstName" class="form-label"
+                  >Pricing Details</label
+                >
+                <input type="text" class="form-control" id="inputFirstName" />
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset id="venuePrep" class="col-md-2">
+                <legend>Venue Preference</legend>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="venuePref"
+                    id="venuePref"
+                  />
+                  <label class="form-check-label" for="venuePref"
+                    ><span>Yes</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="venuePref"
+                    id="venuePrep"
+                  />
+                  <label class="form-check-label" for="venuePref"
+                    ><span class="d-hide">No</span></label
+                  >
+                </div>
+              </fieldset>
+
+              <div class="col-md-4">
+                <label for="inputState" class="form-label">Venues</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>asdf</option>
+                  <option>asdf</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </main>
+      </div>
+            @* @foreach (var article in pageOfArticles)
+            {
+                <div class="post-preview">
+                    <a href="@article.Url()">
+                        <h2 class="post-title">
+                            @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
+                        </h2>
+                        @if (!string.IsNullOrWhiteSpace(article.Subtitle))
+                        {
+                            <h3 class="post-subtitle">@article.Subtitle</h3>
+                        }
+                    </a>
+                    <p class="post-meta">
+                        @Umbraco.GetDictionaryValue("Article.Posted")
+                        @if (!string.IsNullOrWhiteSpace(article.AuthorName))
+                        {
+                            @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@article.AuthorName
+                        }
+                        @Umbraco.GetDictionaryValue("Article.On") @article.ArticleDate.ToString("MMMM dd, yyyy")
+                    </p>
+                </div>
+                <hr>
+            }
+            <!-- Pager -->
+            <div id="paging" class="clearfix">
+                @if (isArticleListPage)
+                {
+                    if (pageCount > 1)
+                    {
+                        <div class="paging-block">
+                            @if (pageNumber > 1)
+                            {
+                                <a class="btn btn-primary float-left" href="@($"{articleList.Url()}?page={pageNumber - 1}&size={pageSize}")">@Umbraco.GetDictionaryValue("Paging.Previous")</a>
+                            }
+                            else
+                            {
+                                @Html.Raw("&nbsp;")
+                            }
+                        </div>
+                        <div class="paging-block text-center">
+                            <span>@Umbraco.GetDictionaryValue("Paging.Page") @pageNumber @Umbraco.GetDictionaryValue("Paging.Of") @pageCount</span>
+                        </div>
+                        <div class="paging-block">
+                            @if (pageNumber < pageCount)
+                            {
+                                <a class="btn btn-primary float-right" href="@($"{articleList.Url()}?page={pageNumber + 1}&size={pageSize}")">@Umbraco.GetDictionaryValue("Paging.Next")</a>
+                            }
+                            else
+                            {
+                                @Html.Raw("&nbsp;")
+                            }
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    if (articleList != null && !string.IsNullOrWhiteSpace(articleList.Url()))
+                    {
+                        <a class="btn btn-primary float-end" href="@(articleList?.Url())">@Umbraco.GetDictionaryValue("ArticleList.ViewAll")</a>
+                    }
+                }
+            </div> *@
+            
+
+@* 
+ <div class="container-sm bd-gutter">
+       
+        <main>
+          <h2 class="mb-3">Artist Registration</h2>
+          <form class="row g-3">
+            <div class="col-md-4 mb-3">
+              <label for="inputFirstName1" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="inputFirstName1" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputPassword4" class="form-label">Last Name</label>
+              <input type="password" class="form-control" id="inputPassword4" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputEmail4" class="form-label">Email</label>
+              <input type="email" class="form-control" id="inputEmail4" />
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="inputAddress" class="form-label">Address</label>
+              <input
+                type="text"
+                class="form-control"
+                id="inputAddress"
+                placeholder="1234 Main St"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputAddress2" class="form-label">Address 2</label>
+              <input
+                type="text"
+                class="form-control"
+                id="inputAddress2"
+                placeholder="Apartment, studio, or floor"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputCity" class="form-label">City</label>
+              <input type="text" class="form-control" id="inputCity" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputState" class="form-label">State</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>MI</option>
+                <option>IL</option>
+                <option>OH</option>
+              </select>
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputZip" class="form-label">Zip</label>
+              <input type="text" class="form-control" id="inputZip" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputState" class="form-label">Country</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>USA</option>
+                <option>Canada</option>
+                <option>Sweden</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="inputState" class="form-label">Birth Country</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>USA</option>
+                <option>Canada</option>
+                <option>Sweden</option>
+              </select>
+            </div>
+
+
+
+            <fieldset class="col-md-3">
+                <legend>Artist name other than name listed?</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="artistYes"
+                    name="artistOther"
+                    value="Yes"
+                    checked
+                  />
+                  <label for="artistYes">Yes</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="artistNo"
+                    name="artistOther"
+                    value="No"
+                  />
+                  <label for="artistNo">No</label>
+                </div>
+              </fieldset>
+            
+            
+              
+            <div class="col-md-4 mb-3">
+              <label for="inputFirstName2" class="form-label"
+                >Artist or Artist Group Name(s)</label
+              >
+              <input type="text" class="form-control" id="inputFirstName2" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="inputPhone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="inputPhone" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label for="inputState" class="form-label">Phone Type</label>
+              <select id="inputState" class="form-select">
+                <option selected="">Choose...</option>
+                <option>Mobile</option>
+                <option>Land line</option>
+              </select>
+            </div>
+
+            <h3 class="mb-3 mt-5">Collaborators</h3>
+            <div class="row collab mb-3">
+              <div class="col-md-3">
+                <label for="inputFirstName3" class="form-label"
+                  >First Name</label
+                >
+                <input type="text" class="form-control" id="inputFirstName3" />
+              </div>
+              <div class="col-md-4">
+                <label for="inputPassword4" class="form-label">Last Name</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="inputPassword4"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="inputEmail4" class="form-label">Email</label>
+                <input type="email" class="form-control" id="inputEmail4" />
+              </div>
+              <div class="col-md-1">
+                <button type="submit" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+
+            <div class="row collab mb-3">
+              <div class="col-md-1">
+                <button class="btn btn-danger">X</button>
+              </div>
+              <div class="col-md-1">
+                <p>First</p>
+              </div>
+              <div class="col-md-1">
+                <p>Name</p>
+              </div>
+            </div>
+
+            <div class="row collab mb-3">
+              <div class="col-md-1">
+                <button class="btn btn-danger">X</button>
+              </div>
+              <div class="col-md-1">
+                <p>Firstt</p>
+              </div>
+              <div class="col-md-1">
+                <p>Namee</p>
+              </div>
+            </div>
+
+            <h3 class="mb-3 mt-5">Artwork</h3>
+            <div class="row collab">
+              <div class="col-md-4 mb-3">
+                <label for="inputFirstName4" class="form-label">Title</label>
+                <input type="text" class="form-control" id="inputFirstName4" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputPassword4" class="form-label"
+                  >Production Year</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="inputPassword4"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputEmail4" class="form-label">Medium</label>
+                <input type="email" class="form-control" id="inputEmail4" />
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset class="col-md-2">
+                <legend>Environment</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="inDoors"
+                    name="environment"
+                    value="Indoors"
+                    checked
+                  />
+                  <label for="inDoors">Indoors</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="outDoors"
+                    name="environment"
+                    value="Outdoors"
+                  />
+                  <label for="outDoors">Outdoors</label>
+                </div>
+              </fieldset>
+
+              <div class="col-md-4 mb-3">
+                <label for="inputPhone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="inputPhone" />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="inputState" class="form-label">Phone Type</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>Mobile</option>
+                  <option>Land line</option>
+                </select>
+              </div>
+            </div>
+            <div class="row collab">
+              <div class="col-md-12 mb-3 p-0">
+                <label for="exampleFormControlTextarea1" class="form-label"
+                  >Description</label>
+                <textarea
+                  class="form-control"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-4 mb-3 p-0">
+                <label for="inputState" class="form-label">Art Forms</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>asdf</option>
+                  <option>asdf</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstNam5e" class="form-label">Width</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName5"
+                />
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstName6" class="form-label">Depth</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName6"
+                />
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="inputFirstName7" class="form-label">Height</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="inputFirstName7"
+                />
+              </div>
+
+              <fieldset>
+                <legend>Can touch?</legend>
+                <div>
+                  <input
+                    type="radio"
+                    id="canTouch"
+                    name="touchornah"
+                    value="Yes"
+                    checked
+                  />
+                  <label for="canTouch">Yes</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    id="noTouch"
+                    name="touchornah"
+                    value="No"
+                  />
+                  <label for="noTouch">No</label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-12 p-0">
+                <label for="exampleFormControlTextarea1" class="form-label"
+                  >Technical Details</label
+                >
+                <textarea
+                  class="form-control"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <div class="col-md-5 p-0">
+                <label for="formFile" class="form-label"
+                  >Upload Artwork Images</label
+                >
+                <input class="form-control" type="file" id="formFile" />
+              </div>
+              <div class="col-md-1 text-center">
+                <p class="mt-5">or</p>
+              </div>
+              <div class="col-md-5 p-0">
+                <label for="inputFirstName8" class="form-label">URL</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputFirstName8"
+                  placeholder="https://"
+                />
+              </div>
+              <div class="col-md-1">
+                <button type="button" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset class="col-md-2">
+                  <legend>Can touch?</legend>
+                  <div>
+                    <input
+                      type="radio"
+                      id="canTouch"
+                      name="touchornah"
+                      value="Yes"
+                      checked
+                    />
+                    <label for="canTouch">Yes</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="noTouch"
+                      name="touchornah"
+                      value="No"
+                    />
+                    <label for="noTouch">No</label>
+                  </div>
+                </fieldset>
+
+
+             
+                  
+
+
+              <div class="col-md-2">
+                <label for="inputFirstName8" class="form-label">Price</label>
+                <input
+                  type="currency"
+                  class="form-control"
+                  id="inputFirstName8"
+                  min="0.01"
+                  step="0.01"
+                  max="2500"
+                  value="25.67"
+                />
+              </div>
+              <div class="col-md-8">
+                <label for="inputFirstName" class="form-label"
+                  >Pricing Details</label
+                >
+                <input type="text" class="form-control" id="inputFirstName" />
+              </div>
+            </div>
+
+            <div class="row collab">
+              <fieldset id="venuePrep" class="col-md-2">
+                <legend>Venue Preference</legend>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="venuePref"
+                    id="venuePref"
+                  />
+                  <label class="form-check-label" for="venuePref">Yes</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="venuePref"
+                    id="venuePrep"
+                  />
+                  <label class="form-check-label" for="venuePref">No</label>
+                </div>
+              </fieldset>
+
+              <div class="col-md-4">
+                <label for="inputState" class="form-label">Venues</label>
+                <select id="inputState" class="form-select">
+                  <option selected="">Choose...</option>
+                  <option>asdf</option>
+                  <option>asdf</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </main>
+      </div> *@
+
+
+
+
+
+        </div>
+    </div>
+</div>
